@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Software</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .check-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #555;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .bank-account {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .radio-option {
+            margin-right: 15px;
+        }
+        .balance {
+            margin-left: auto;
+            font-weight: bold;
+        }
+        .address-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .address-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .tags-input {
+            position: relative;
+        }
+        .tags-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .left-buttons, .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .secondary-button {
+            background-color: #eee;
+            color: #333;
+        }
+        .primary-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .more-button {
+            background-color: transparent;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="check-container">
+        <h1>Check #1</h1>
+        
+        <div class="section">
+            <h2>Payee</h2>
+            <p>Who did you pay?</p>
+            
+            <div class="bank-account">
+                <div class="radio-option">
+                    <input type="radio" id="cash" name="account" checked>
+                    <label for="cash">Cash</label>
+                </div>
+                <div class="balance">Balance $2,646.59</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Mailing address</h2>
+            <div class="address-section">
+                <div class="address-group">
+                    <label>Payment date</label>
+                    <input type="text" value="04/09/2025">
+                </div>
+                <div class="address-group">
+                    <label>Check no.</label>
+                    <input type="text" value="1">
+                </div>
+                <div class="address-group">
+                    <label>&nbsp;</label>
+                    <button class="secondary-button">Print later</button>
+                </div>
+                <div class="address-group">
+                    <label>Store</label>
+                    <input type="text" value="Walmart">
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Tags</h2>
+            <div class="tags-input">
+                <input type="text" placeholder="Start typing to add a tag">
+                <p class="tags-hint">Manage tags</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>CATEGORY</h2>
+            <div class="category-grid">
+                <div>
+                    <label>DESCRIPTION</label>
+                    <input type="text">
+                </div>
+                <div>
+                    <label>AMOUNT</label>
+                    <input type="text" placeholder="1">
+                </div>
+                <div>
+                    <label>CATEGORY</label>
+                    <select>
+                        <option>Select category</option>
+                    </select>
+                </div>
+                <div>
+                    <label>AMOUNT</label>
+                    <input type="text" placeholder="2">
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-row">
+            <div class="left-buttons">
+                <button class="secondary-button">Cancel</button>
+                <button class="secondary-button">Print check</button>
+                <button class="secondary-button">Order checks</button>
+                <button class="secondary-button">Make recurring</button>
+                <button class="more-button">More ▼</button>
+            </div>
+            <div class="right-buttons">
+                <button class="secondary-button">Save</button>
+                <button class="primary-button">Save and close</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

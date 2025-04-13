@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Transaction</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            padding-top: 40px;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Glassmorphism Container */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        /* Form Styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #4a4a4a;
+            font-weight: 600;
+        }
+
+        input, select {
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 25px;
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #808080;
+            box-shadow: 0 0 8px rgba(128, 128, 128, 0.3);
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #666666, #4a4a4a);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Button Container */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .view-transactions-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .view-transactions-btn:hover {
+            background: linear-gradient(135deg, #666666, #4a4a4a);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Background Particles */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('Particles.js loaded!');
+        });
+    </script>
+</head>
+<body>
+    <!-- Particles.js Container -->
+    <div id="particles-js"></div>
+
+    <h1>Add Transaction</h1>
+    <div class="container">
+        <!-- Transaction Form -->
+        <form method="POST" action="{{ url_for('add_transaction_page') }}">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="Debit">Debit</option>
+                <option value="Credit">Credit</option>
+            </select>
+
+            <label for="account">Account:</label>
+            <select id="account" name="account" required>
+                {% for account in accounts %}
+                    <option value="{{ account[0] }}">{{ account[1] }} (Balance: ${{ "%.2f"|format(account[2]) }})</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Add Transaction</button>
+        </form>
+
+        <!-- Button Container -->
+        <div class="button-container">
+            <a href="{{ url_for('index') }}" class="view-transactions-btn">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

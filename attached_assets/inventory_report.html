@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        .report-section { margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .summary-card {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .summary-value {
+            font-weight: bold;
+        }
+        .low-stock { color: #dc3545; }
+        .print-btn { 
+            padding: 8px 15px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-bottom: 20px;
+        }
+        /* Added home button style */
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Added home button -->
+    <a href="/home" class="home-btn">Home</a>
+
+    <h2>Inventory Report</h2>
+    <button class="print-btn" onclick="window.print()">Print Report</button>
+    
+    <div class="report-section">
+        <h3>Inventory Summary</h3>
+        <div class="summary-card">
+            <div class="summary-item">
+                <span>Total Items in Inventory:</span>
+                <span class="summary-value">{{ summary.total_items }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Inventory Value:</span>
+                <span class="summary-value">${{ "%.2f"|format(summary.total_value or 0) }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Sold Value:</span>
+                <span class="summary-value">${{ "%.2f"|format(summary.total_sold_value or 0) }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Remaining Value:</span>
+                <span class="summary-value">${{ "%.2f"|format(summary.total_remaining_value or 0) }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="report-section">
+        <h3>Low Stock Items (less than 10 remaining)</h3>
+        {% if low_stock %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Remaining Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in low_stock %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td class="low-stock">{{ item.remaining }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No low stock items.</p>
+        {% endif %}
+    </div>
+    
+    <div class="report-section">
+        <h3>Recent Inventory Transactions</h3>
+        {% if recent_transactions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in recent_transactions %}
+                    <tr>
+                        <td>{{ tx.date }}</td>
+                        <td>{{ tx.name }}</td>
+                        <td>{{ tx.type|capitalize }}</td>
+                        <td>{{ tx.quantity }}</td>
+                        <td>${{ "%.2f"|format(tx.unit_price) }}</td>
+                        <td>${{ "%.2f"|format(tx.total_value) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No recent transactions.</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 30px; font-size: 12px; color: #666;">
+        Report generated on {{ now.strftime('%Y-%m-%d %H:%M:%S') }}
+    </div>
+</body>
+</html>

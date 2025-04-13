@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Inventory Management System</h1>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-4" id="inventoryTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" 
+                                data-bs-target="#inventory-pane" type="button" role="tab" 
+                                aria-controls="inventory-pane" aria-selected="true">
+                            <i class="fas fa-boxes me-1"></i> Inventory
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="add-item-tab" data-bs-toggle="tab" 
+                                data-bs-target="#add-item-pane" type="button" role="tab" 
+                                aria-controls="add-item-pane" aria-selected="false">
+                            <i class="fas fa-plus-circle me-1"></i> Add New Item
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" href="{{ url_for('inventory_report') }}">
+                            <i class="fas fa-chart-bar me-1"></i> Inventory Report
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="inventoryTabContent">
+                    <!-- Inventory Tab -->
+                    <div class="tab-pane fade show active" id="inventory-pane" role="tabpanel" aria-labelledby="inventory-tab">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search items..." 
+                                           onkeyup="searchInventory()">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <select id="categoryFilter" class="form-select" onchange="filterInventory()">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="notification" class="alert" style="display: none;"></div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total Value</th>
+                                        <th>Sold</th>
+                                        <th>Remaining</th>
+                                        <th>Category</th>
+                                        <th>Supplier</th>
+                                        <th>Expiry Date</th>
+                                        <th>Barcode</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTable">
+                                    <!-- Inventory items will be loaded here via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Item Tab -->
+                    <div class="tab-pane fade" id="add-item-pane" role="tabpanel" aria-labelledby="add-item-tab">
+                        <div class="row">
+                            <div class="col-md-8 mx-auto">
+                                <div id="addItemNotification" class="alert" style="display: none;"></div>
+                                
+                                <form id="addItemForm">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="mb-3">
+                                                <label for="itemName" class="form-label">Item Name:</label>
+                                                <input type="text" id="itemName" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="barcode" class="form-label">Barcode:</label>
+                                                <input type="text" id="barcode" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="quantity" class="form-label">Quantity:</label>
+                                                <input type="number" id="quantity" min="1" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="price" class="form-label">Price per Unit:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number" id="price" min="0.01" step="0.01" 
+                                                           class="form-control currency-input" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="category" class="form-label">Category:</label>
+                                                <input type="text" id="category" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="supplier" class="form-label">Supplier:</label>
+                                                <input type="text" id="supplier" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="expiryDate" class="form-label">Expiry Date:</label>
+                                                <input type="date" id="expiryDate" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="button" class="btn btn-secondary me-md-2" onclick="clearForm()">
+                                            <i class="fas fa-times me-1"></i> Clear Form
+                                        </button>
+                                        <button type="button" class="btn btn-primary" onclick="addItem()">
+                                            <i class="fas fa-save me-1"></i> Add Item
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Global variables
+    let inventoryData = [];
+    let categories = [];
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadInventory();
+    });
+    
+    // Load inventory from server
+    async function loadInventory() {
+        try {
+            const response = await fetch('/api/inventory');
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            inventoryData = await response.json();
+            extractCategories();
+            renderTable(inventoryData);
+        } catch (error) {
+            showNotification('Error loading inventory: ' + error.message, 'danger');
+        }
+    }
+    
+    // Extract unique categories for filter
+    function extractCategories() {
+        categories = [...new Set(inventoryData.map(item => item.category).filter(Boolean))];
+        const filter = document.getElementById('categoryFilter');
+        filter.innerHTML = '<option value="">All Categories</option>';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            filter.appendChild(option);
+        });
+    }
+    
+    // Search functionality
+    function searchInventory() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = inventoryData.filter(item => 
+            item.name.toLowerCase().includes(input) || 
+            (item.barcode && item.barcode.toLowerCase().includes(input))
+        );
+        renderTable(filtered);
+    }
+    
+    // Filter by category
+    function filterInventory() {
+        const category = document.getElementById('categoryFilter').value;
+        if (!category) {
+            renderTable(inventoryData);
+            return;
+        }
+        const filtered = inventoryData.filter(item => item.category === category);
+        renderTable(filtered);
+    }
+    
+    // Render the inventory table
+    function renderTable(data) {
+        const table = document.getElementById('inventoryTable');
+        table.innerHTML = '';
+        
+        if (data.length === 0) {
+            const row = table.insertRow();
+            const cell = row.insertCell(0);
+            cell.colSpan = 11;
+            cell.className = 'text-center';
+            cell.textContent = 'No inventory items found.';
+            return;
+        }
+        
+        data.forEach(item => {
+            const row = table.insertRow();
+            
+            row.insertCell(0).textContent = item.name;
+            row.insertCell(1).textContent = item.quantity;
+            
+            const priceCell = row.insertCell(2);
+            priceCell.textContent = formatCurrency(item.price);
+            
+            const totalValueCell = row.insertCell(3);
+            totalValueCell.textContent = formatCurrency(item.price * item.quantity);
+            
+            row.insertCell(4).textContent = item.sold || 0;
+            row.insertCell(5).textContent = item.remaining || item.quantity;
+            row.insertCell(6).textContent = item.category || '-';
+            row.insertCell(7).textContent = item.supplier || '-';
+            row.insertCell(8).textContent = item.expiry_date || '-';
+            row.insertCell(9).textContent = item.barcode || '-';
+            
+            const actionCell = row.insertCell(10);
+            actionCell.className = 'd-flex gap-1';
+            
+            // Sell button
+            const sellBtn = document.createElement('button');
+            sellBtn.className = 'btn btn-sm btn-success';
+            sellBtn.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+            sellBtn.title = 'Sell Item';
+            sellBtn.setAttribute('data-bs-toggle', 'tooltip');
+            sellBtn.onclick = () => sellItem(item.id, item.name, item.remaining || item.quantity);
+            actionCell.appendChild(sellBtn);
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-sm btn-danger';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.title = 'Delete Item';
+            deleteBtn.setAttribute('data-bs-toggle', 'tooltip');
+            deleteBtn.onclick = () => deleteItem(item.id, item.name);
+            actionCell.appendChild(deleteBtn);
+        });
+        
+        // Initialize tooltips
+        const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltips.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+    
+    // Add new item to inventory
+    async function addItem() {
+        const itemName = document.getElementById('itemName').value.trim();
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const price = parseFloat(document.getElementById('price').value);
+        const category = document.getElementById('category').value.trim();
+        const supplier = document.getElementById('supplier').value.trim();
+        const expiryDate = document.getElementById('expiryDate').value;
+        const barcode = document.getElementById('barcode').value.trim();
+        
+        if (!itemName || isNaN(quantity) || isNaN(price) || quantity <= 0 || price <= 0) {
+            showNotification('Please enter valid item details (name, quantity > 0, price > 0)', 'danger', 'addItemNotification');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/inventory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: itemName,
+                    quantity: quantity,
+                    price: price,
+                    category: category,
+                    supplier: supplier,
+                    expiryDate: expiryDate,
+                    barcode: barcode
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to add item');
+            }
+            
+            showNotification('Item added successfully!', 'success', 'addItemNotification');
+            clearForm();
+            await loadInventory(); // Refresh the inventory
+            
+            // Switch to inventory tab
+            document.getElementById('inventory-tab').click();
+        } catch (error) {
+            showNotification('Error: ' + error.message, 'danger', 'addItemNotification');
+        }
+    }
+    
+    // Sell item
+    async function sellItem(itemId, itemName, availableQty) {
+        const qty = prompt(`Enter quantity to sell for ${itemName} (Available: ${availableQty}):`);
+        const quantity = parseInt(qty);
+        
+        if (!qty || isNaN(quantity) || quantity <= 0) {
+            showNotification('Invalid quantity entered', 'danger');
+            return;
+        }
+        
+        if (quantity > availableQty) {
+            showNotification(`Cannot sell ${quantity} items. Only ${availableQty} available.`, 'danger');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/inventory/${itemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sold: quantity
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to sell item');
+            }
+            
+            showNotification(`Sold ${quantity} of ${itemName}`, 'success');
+            await loadInventory(); // Refresh the inventory
+        } catch (error) {
+            showNotification('Error: ' + error.message, 'danger');
+        }
+    }
+    
+    // Delete item from inventory
+    async function deleteItem(itemId, itemName) {
+        if (!confirm(`Are you sure you want to delete ${itemName}?`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/inventory/${itemId}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to delete item');
+            }
+            
+            showNotification(`Deleted ${itemName}`, 'success');
+            await loadInventory(); // Refresh the inventory
+        } catch (error) {
+            showNotification('Error: ' + error.message, 'danger');
+        }
+    }
+    
+    // Clear form fields
+    function clearForm() {
+        document.getElementById('itemName').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('supplier').value = '';
+        document.getElementById('expiryDate').value = '';
+        document.getElementById('barcode').value = '';
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'info', elementId = 'notification') {
+        const notificationElement = document.getElementById(elementId);
+        notificationElement.textContent = message;
+        notificationElement.className = `alert alert-${type}`;
+        notificationElement.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            notificationElement.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Format currency
+    function formatCurrency(amount) {
+        return '$' + parseFloat(amount).toFixed(2);
+    }
+</script>
+{% endblock %}

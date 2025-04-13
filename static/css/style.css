@@ -1,0 +1,319 @@
+/* 
+Main Stylesheet for Riska's Finance Application
+------------------------------------------------
+This stylesheet provides consistent styling across all pages
+*/
+
+:root {
+  /* Main color palette */
+  --primary-color: #808080;
+  --primary-dark: #666666;
+  --primary-light: #a0a0a0;
+  --secondary-color: #e0f7fa;
+  --text-color: #333333;
+  --bg-color: #f9f9f9;
+  --bg-gradient: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+}
+
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1; /* Make main content fill available space */
+  padding: 1.5rem 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Card styling with glassmorphism effect */
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Custom Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border: none;
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark), #555555);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  border: none;
+  border-radius: 25px;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar styling */
+.navbar {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: var(--secondary-color);
+  color: var(--primary-dark);
+}
+
+.nav-link.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Tables */
+.table {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 1rem;
+  border-bottom: none;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: rgba(248, 248, 248, 0.6);
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(224, 247, 250, 0.8);
+  transform: scale(1.01);
+}
+
+.table td, .table th {
+  padding: 1rem;
+  vertical-align: middle;
+  border-top: 1px solid rgba(221, 221, 221, 0.3);
+}
+
+/* Form styling */
+.form-control, .form-select {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(221, 221, 221, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(128, 128, 128, 0.25);
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+/* Footer */
+footer {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem 0;
+  text-align: center;
+  margin-top: auto;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+footer p {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+/* Utilities */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Status badges */
+.badge {
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Search bar */
+.search-container {
+  margin: 1.5rem 0;
+}
+
+.search-container input {
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(221, 221, 221, 0.5);
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .table thead th, .table tbody td {
+    white-space: nowrap;
+  }
+  
+  .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    font-size: 12pt;
+  }
+  
+  .navbar, footer, .no-print {
+    display: none;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .table {
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
+}

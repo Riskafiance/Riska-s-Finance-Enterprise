@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - {{ search_term }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="mb-0">Search Results for "{{ search_term }}"</h1>
+    </div>
+    <div class="card-body">
+        {% if results %}
+            <div class="row">
+                {% for result in results %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            {% if result.type == 'account' %}
+                                <h5 class="card-title">
+                                    <i class="fas fa-wallet me-2"></i> Account: {{ result.name }}
+                                </h5>
+                                <p class="card-text">
+                                    ID: {{ result.id }}<br>
+                                    {% if result.balance is defined %}
+                                    Balance: ${{ "%.2f"|format(result.balance) }}<br>
+                                    {% endif %}
+                                    {% if result.last_updated is defined %}
+                                    Last Updated: {{ result.last_updated or 'N/A' }}
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('account_details', account_id=result.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-eye me-1"></i> View Account
+                                </a>
+                            
+                            {% elif result.type == 'transaction' %}
+                                <h5 class="card-title">
+                                    <i class="fas fa-exchange-alt me-2"></i> Transaction
+                                </h5>
+                                <p class="card-text">
+                                    {{ result.description }}<br>
+                                    Account: {{ result.account }}<br>
+                                    Date: {{ result.date }}<br>
+                                    {% if result.amount is defined %}
+                                    Amount: ${{ "%.2f"|format(result.amount) }}
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('account_details', account_id=result.account_id) }}" class="btn btn-primary">
+                                    <i class="fas fa-eye me-1"></i> View Account
+                                </a>
+                            
+                            {% elif result.type == 'inventory' %}
+                                <h5 class="card-title">
+                                    <i class="fas fa-box me-2"></i> Inventory Item
+                                </h5>
+                                <p class="card-text">
+                                    {{ result.name }}<br>
+                                    {% if result.quantity is defined %}
+                                    Quantity: {{ result.quantity }}<br>
+                                    {% endif %}
+                                    {% if result.price is defined %}
+                                    Price: ${{ "%.2f"|format(result.price) }}
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('inventory') }}" class="btn btn-primary">
+                                    <i class="fas fa-boxes me-1"></i> View Inventory
+                                </a>
+                            
+                            {% elif result.type == 'asset' %}
+                                <h5 class="card-title">
+                                    <i class="fas fa-building me-2"></i> Asset
+                                </h5>
+                                <p class="card-text">
+                                    {{ result.name }}<br>
+                                    {% if result.value is defined %}
+                                    Value: ${{ "%.2f"|format(result.value) }}<br>
+                                    {% endif %}
+                                    {% if result.purchase_date is defined %}
+                                    Purchase Date: {{ result.purchase_date }}
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('assets') }}" class="btn btn-primary">
+                                    <i class="fas fa-list me-1"></i> View Assets
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x mb-3 text-muted"></i>
+                <h3>No results found for "{{ search_term }}"</h3>
+                <p class="text-muted">Try searching for accounts, transactions, inventory items, or assets</p>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-footer">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-home me-1"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entry</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #808080; /* Medium grey */
+            padding-top: 20px;
+        }
+        form {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .checkbox-label input {
+            width: auto;
+            margin-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #808080; /* Medium grey */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e0f7fa;
+        }
+        tfoot td {
+            font-weight: bold;
+            background-color: #e0f7fa;
+        }
+        button {
+            background-color: #808080; /* Medium grey */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #666666; /* Darker grey for hover */
+        }
+        a {
+            color: #808080; /* Medium grey */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        a:hover {
+            color: #666666; /* Darker grey for hover */
+            background-color: #e0f7fa;
+        }
+    </style>
+    <script>
+        function addDebitLine() {
+            const table = document.getElementById("debitTable").getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            cell1.innerHTML = `<select name="debit_account" required>
+                                {% for account in accounts %}
+                                <option value="{{ account[0] }}">{{ account[1] }}</option>
+                                {% endfor %}
+                              </select>`;
+            cell2.innerHTML = `<input type="number" name="debit_amount" step="0.01" required oninput="updateTotals()">`;
+            cell3.innerHTML = `<input type="text" name="debit_description" required>`;
+            updateTotals();
+        }
+
+        function addCreditLine() {
+            const table = document.getElementById("creditTable").getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            cell1.innerHTML = `<select name="credit_account" required>
+                                {% for account in accounts %}
+                                <option value="{{ account[0] }}">{{ account[1] }}</option>
+                                {% endfor %}
+                              </select>`;
+            cell2.innerHTML = `<input type="number" name="credit_amount" step="0.01" required oninput="updateTotals()">`;
+            cell3.innerHTML = `<input type="text" name="credit_description" required>`;
+            updateTotals();
+        }
+
+        function updateTotals() {
+            // Calculate total debit
+            const debitAmounts = document.querySelectorAll("#debitTable input[name='debit_amount']");
+            let totalDebit = 0;
+            debitAmounts.forEach(input => {
+                totalDebit += parseFloat(input.value) || 0;
+            });
+            document.getElementById("totalDebit").textContent = totalDebit.toFixed(2);
+
+            // Calculate total credit
+            const creditAmounts = document.querySelectorAll("#creditTable input[name='credit_amount']");
+            let totalCredit = 0;
+            creditAmounts.forEach(input => {
+                totalCredit += parseFloat(input.value) || 0;
+            });
+            document.getElementById("totalCredit").textContent = totalCredit.toFixed(2);
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: left; padding: 20px;">
+        <a href="{{ url_for('index') }}">Back to Accounts</a>
+    </div>
+    <h1>Journal Entry</h1>
+    <form method="POST">
+        <label for="date">Journal Date:</label>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <label for="journal_no">Journal No.:</label>
+        <input type="text" id="journal_no" name="journal_no" required><br><br>
+
+        <div class="checkbox-label">
+            <label for="is_adjusting">Is Adjusting Journal Entry?</label>
+            <input type="checkbox" id="is_adjusting" name="is_adjusting">
+        </div>
+
+        <h2>Debit Accounts</h2>
+        <table id="debitTable">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select name="debit_account" required>
+                            {% for account in accounts %}
+                            <option value="{{ account[0] }}">{{ account[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="debit_amount" step="0.01" required oninput="updateTotals()"></td>
+                    <td><input type="text" name="debit_description" required></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align: right;"><strong>Total Debit:</strong></td>
+                    <td><span id="totalDebit">0.00</span></td>
+                </tr>
+            </tfoot>
+        </table>
+        <button type="button" onclick="addDebitLine()">Add Debit Line</button><br><br>
+
+        <h2>Credit Accounts</h2>
+        <table id="creditTable">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select name="credit_account" required>
+                            {% for account in accounts %}
+                            <option value="{{ account[0] }}">{{ account[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="credit_amount" step="0.01" required oninput="updateTotals()"></td>
+                    <td><input type="text" name="credit_description" required></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align: right;"><strong>Total Credit:</strong></td>
+                    <td><span id="totalCredit">0.00</span></td>
+                </tr>
+            </tfoot>
+        </table>
+        <button type="button" onclick="addCreditLine()">Add Credit Line</button><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

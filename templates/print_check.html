@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Print Check{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="mb-0">Print Check</h1>
+    </div>
+    <div class="card-body">
+        {% if check %}
+        <!-- Check Preview -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Check Preview</h3>
+                <button onclick="window.print()" class="btn btn-primary">
+                    <i class="fas fa-print me-1"></i> Print Check
+                </button>
+            </div>
+            
+            <!-- Check Template -->
+            <div class="check-template p-4 border">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Riska's Finance Logo" class="check-logo">
+                        <div>Riska's Finance</div>
+                        <div>123 Business Ave.</div>
+                        <div>Finance City, FC 12345</div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="check-number">Check #{{ check.check_number }}</div>
+                        <div class="check-date">{{ check.date }}</div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="mb-2"><strong>Pay to the order of:</strong></div>
+                        <div class="check-payee p-2 border-bottom mb-3">{{ check.payee }}</div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="check-amount-words p-2 border-bottom">
+                                    {{ check.amount_words }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="check-amount p-2 border border-dark text-end">
+                                    ${{ "%.2f"|format(check.amount) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="memo"><strong>Memo:</strong> {{ check.memo or "" }}</div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="signature-line p-2 border-bottom">
+                            Authorized Signature
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="account-details text-center">
+                            Account: {{ check.account_name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Check Selection Form -->
+        <div class="mb-4">
+            <p>Select a check to print or create a new check.</p>
+            
+            <div class="d-flex justify-content-between mb-3">
+                <h4>Recent Checks</h4>
+                <a href="{{ url_for('write_check') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Write New Check
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Check #</th>
+                            <th>Date</th>
+                            <th>Payee</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in checks %}
+                        <tr>
+                            <td>{{ c.check_number }}</td>
+                            <td>{{ c.date }}</td>
+                            <td>{{ c.payee }}</td>
+                            <td>${{ "%.2f"|format(c.amount) }}</td>
+                            <td>
+                                <a href="{{ url_for('print_check', check_id=c.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-print"></i> Print
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .check-template {
+        background-color: #FAFAFA;
+        border: 1px solid #CCC;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .check-logo {
+        max-height: 50px;
+        margin-bottom: 10px;
+    }
+    
+    .check-number {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .check-date {
+        font-size: 1rem;
+        color: #555;
+    }
+    
+    .check-payee {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .check-amount-words {
+        font-size: 1rem;
+    }
+    
+    .check-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .signature-line {
+        min-height: 30px;
+        margin-top: 10px;
+        text-align: center;
+        color: #777;
+    }
+    
+    .account-details {
+        font-size: 0.9rem;
+        color: #555;
+        margin-top: 20px;
+    }
+    
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        
+        .check-template, .check-template * {
+            visibility: visible;
+        }
+        
+        .check-template {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .btn, header, footer, nav {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}

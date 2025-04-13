@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riska's Finance</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .header nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header nav a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .header nav a:hover {
+            background: rgba(224, 247, 250, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .search-bar {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .search-bar input {
+            padding: 8px 16px;
+            border: 1px solid rgba(221, 221, 221, 0.5);
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .header .search-bar input:focus {
+            border-color: #666666;
+            box-shadow: 0 0 8px rgba(102, 102, 102, 0.2);
+        }
+
+        .header .search-bar button {
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .header .search-bar button:hover {
+            background: linear-gradient(135deg, #666666, #4a4a4a);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 25px;
+            background: rgba(248, 248, 248, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(224, 247, 250, 0.8);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-left: 340px;
+        }
+
+        /* Right-Side Content */
+        .right-side {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        .right-side h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        /* Business Feed Styles */
+        .business-feed {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .business-feed h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .feed-item {
+            background: rgba(248, 248, 248, 0.8);
+            border-left: 4px solid #666666;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feed-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .feed-item h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+
+        .feed-item p {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+
+        .feed-item a {
+            color: #4a6fa5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Stats Grid Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(248, 248, 248, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h4 {
+            margin: 0 0 5px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stat-card .amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-card .detail {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Logo Styles */
+        .logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 250px;
+            height: auto;
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .welcome-message h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Cards */
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1 1 calc(33.333% - 40px);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .chart-section h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-section canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Recent Transactions Section */
+        .recent-transactions {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .recent-transactions h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .recent-transactions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .recent-transactions th, .recent-transactions td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(221, 221, 221, 0.3);
+        }
+
+        .recent-transactions th {
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .recent-transactions tr:nth-child(even) {
+            background-color: rgba(248, 248, 248, 0.6);
+        }
+
+        .recent-transactions tr:hover {
+            background-color: rgba(224, 247, 250, 0.8);
+            transform: scale(1.02);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Quick Actions Section */
+        .quick-actions {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .quick-actions a {
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .quick-actions a:hover {
+            background: linear-gradient(135deg, #666666, #4a4a4a);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            color: #666666;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Background Particles */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('Particles.js loaded!');
+        });
+    </script>
+</head>
+<body>
+    <!-- Particles.js Container -->
+    <div id="particles-js"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Riska's Finance</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Accounts</a>
+            <a href="{{ url_for('journal_entry') }}">Journal Entry</a>
+            <a href="{{ url_for('add_transaction_page') }}">Add Transaction</a>
+            <a href="{{ url_for('inventory') }}">Inventory</a>
+            <a href="{{ url_for('assets') }}">Asset Keeper</a>
+	    <a href="{{ url_for('checks') }}">Checks</a>
+        </nav>
+        <!-- Replace your current search-bar div with this: -->
+<div class="search-bar">
+    <form action="{{ url_for('search') }}" method="GET">
+        <input type="text" name="q" placeholder="Search transactions..." value="{{ search_term if search_term }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Riska's Finance</h2>
+        <ul>
+            <li><a href="{{ url_for('home') }}"><i>🏠</i> Home</a></li>
+            <li><a href="{{ url_for('index') }}"><i>📊</i> Accounts</a></li>
+            <li><a href="{{ url_for('journal_entry') }}"><i>📝</i> Journal Entry</a></li>
+            <li><a href="{{ url_for('add_transaction_page') }}"><i>➕</i> Add Transaction</a></li>
+            <li><a href="{{ url_for('inventory') }}"><i>📦</i> Inventory</a></li>
+            <li><a href="{{ url_for('assets') }}"><i>🏢</i> Asset Keeper</a></li>
+	    <li><a href="{{ url_for('receivables') }}"><i>📨</i> Accounts Receivable</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Riska's Finance Logo" class="logo">
+
+        <!-- Welcome Message -->
+        <div class="welcome-message">
+            <h1>Welcome to Riska's Finance!</h1>
+            <p>Manage your accounts and transactions with ease.</p>
+        </div>
+
+        <!-- Business Feed -->
+        <div class="business-feed">
+            <h2>Business Feed</h2>
+            
+            <div class="feed-item">
+                <h3>Accounting done</h3>
+                <p>${{ "%.2f"|format(total_balance) }} in invoice payments and -${{ "%.2f"|format(total_balance * 0.8) }} in bill payments finalized</p>
+                <a href="{{ url_for('index') }}">View all matches</a>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="cards">
+            <div class="card">
+                <h3>Total Accounts</h3>
+                <p>{{ total_accounts }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Transactions</h3>
+                <p>{{ total_transactions }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Balance</h3>
+                <p>${{ "%.2f"|format(total_balance) }}</p>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <h2>Total Balance Over Time</h2>
+            <canvas id="balanceChart"></canvas>
+        </div>
+
+        <!-- Recent Transactions Section -->
+        <div class="recent-transactions">
+            <h2>Recent Transactions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Account</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>{{ transaction[0] }}</td>
+                        <td>{{ transaction[1] }}</td>
+                        <td>{{ transaction[2] }}</td>
+                        <td>${{ "%.2f"|format(transaction[3]) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="quick-actions">
+            <a href="{{ url_for('journal_entry') }}" class="btn">Create Journal Entry</a>
+            <a href="{{ url_for('create_account') }}" class="btn">Add New Account</a>
+            <a href="{{ url_for('add_transaction_page') }}" class="btn">Add Transaction</a>
+        </div>
+    </div>
+
+    <!-- Right-Side Content -->
+    <div class="right-side">
+        <h2>Business at a glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Outstanding</h4>
+                <div class="amount">${{ "%.2f"|format(total_balance * 0.1) }}</div>
+                <div class="detail">{{ total_accounts }} accounts</div>
+            </div>
+            <div class="stat-card">
+                <h4>Paid</h4>
+                <div class="amount">${{ "%.2f"|format(total_balance * 0.2) }}</div>
+                <div class="detail">{{ total_transactions }} transactions</div>
+            </div>
+            <div class="stat-card">
+                <h4>Deposited</h4>
+                <div class="amount">${{ "%.2f"|format(total_balance * 0.3) }}</div>
+                <div class="detail">{{ total_inventory }} items</div>
+            </div>
+            <div class="stat-card">
+                <h4>Reconciled</h4>
+                <div class="amount">${{ "%.2f"|format(total_balance) }}</div>
+                <div class="detail">{{ total_assets }} assets</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 Riska's Finance Enterprise. All rights reserved.
+    </div>
+
+    <!-- Chart.js Script -->
+    <script>
+        // Sample data for the chart (replace with dynamic data from your backend)
+        const balanceData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Total Balance',
+                data: [5000, 6000, 5500, 7000, 8000, 7500, 9000],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: true,
+            }]
+        };
+
+        // Chart configuration
+        const config = {
+            type: 'line',
+            data: balanceData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Disable aspect ratio to allow custom sizing
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Total Balance Over Time'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Balance ($)'
+                        }
+                    }
+                }
+            }
+        };
+
+        // Render the chart
+        const balanceChart = new Chart(
+            document.getElementById('balanceChart'),
+            config
+        );
+    </script>
+</body>
+</html>

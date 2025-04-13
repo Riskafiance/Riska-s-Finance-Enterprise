@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Check Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="mb-0">Check Management</h1>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Checks</h5>
+                        <p class="card-text display-6">{{ total_checks }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Accounts</h5>
+                        <p class="card-text display-6">{{ accounts|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Available Balance</h5>
+                        <p class="card-text display-6">${{ "%.2f"|format(accounts|sum(attribute='balance')) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <h2>Recent Checks</h2>
+            <div>
+                <a href="{{ url_for('write_check') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Write New Check
+                </a>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Check #</th>
+                        <th>Date</th>
+                        <th>Payee</th>
+                        <th>Amount</th>
+                        <th>Account</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_checks %}
+                        {% for check in recent_checks %}
+                            <tr>
+                                <td>{{ check[0] }}</td>
+                                <td>{{ check[1] }}</td>
+                                <td>{{ check[2] }}</td>
+                                <td>${{ "%.2f"|format(check[3]) }}</td>
+                                <td>{{ check[4] }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            onclick="alert('Printing feature will be available soon')">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No checks have been written yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4">
+            <h3>Recent Transactions</h3>
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Account</th>
+                            <th>Description</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-transactions">
+                        <!-- Recent transactions will be loaded via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>Bank Accounts</h3>
+            <div class="row">
+                {% for account in accounts %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ account.name }}</h5>
+                            <p class="card-text">
+                                Balance: <strong class="{% if account.balance < 100 %}text-danger{% else %}text-success{% endif %}">
+                                    ${{ "%.2f"|format(account.balance) }}
+                                </strong>
+                            </p>
+                            <a href="{{ url_for('write_check') }}?account_id={{ account.id }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-pen"></i> Write Check from this Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load recent transactions
+        loadRecentTransactions();
+    });
+    
+    function loadRecentTransactions() {
+        // Show loading indicator
+        const transactionsTable = document.getElementById('recent-transactions');
+        transactionsTable.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="ms-2">Loading recent transactions...</span>
+                </td>
+            </tr>
+        `;
+        
+        // Fetch recent transactions
+        fetch('/api/recent_transactions')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.transactions.length > 0) {
+                    // Clear loading indicator
+                    transactionsTable.innerHTML = '';
+                    
+                    // Populate transactions table
+                    data.transactions.forEach(transaction => {
+                        const row = document.createElement('tr');
+                        
+                        // Format date
+                        const date = new Date(transaction.date);
+                        const formattedDate = date.toLocaleDateString ? 
+                            date.toLocaleDateString() : transaction.date;
+                        
+                        // Calculate balance impact
+                        const balanceImpact = transaction.debit - transaction.credit;
+                        const impactClass = balanceImpact >= 0 ? 'text-success' : 'text-danger';
+                        const impactSymbol = balanceImpact >= 0 ? '+' : '';
+                        
+                        row.innerHTML = `
+                            <td>${formattedDate}</td>
+                            <td>${transaction.account}</td>
+                            <td>${transaction.description}</td>
+                            <td>${transaction.debit > 0 ? '$' + transaction.debit.toFixed(2) : '-'}</td>
+                            <td>${transaction.credit > 0 ? '$' + transaction.credit.toFixed(2) : '-'}</td>
+                            <td class="${impactClass}">${impactSymbol}$${Math.abs(balanceImpact).toFixed(2)}</td>
+                        `;
+                        
+                        transactionsTable.appendChild(row);
+                    });
+                } else {
+                    // No transactions or error
+                    transactionsTable.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                ${data.success ? 'No recent transactions found.' : 'Error loading transactions: ' + data.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => {
+                // Handle fetch error
+                transactionsTable.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading transactions: ${error.message}
+                        </td>
+                    </tr>
+                `;
+                console.error('Error fetching recent transactions:', error);
+            });
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-title {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .display-6 {
+        font-size: 2rem;
+        font-weight: 300;
+    }
+    
+    @media (max-width: 768px) {
+        .display-6 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

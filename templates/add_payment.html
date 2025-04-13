@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Receive Payment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="mb-0">Receive Payment</h1>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Select receivable to pay -->
+                    <div class="mb-4">
+                        <label for="receivable_id" class="form-label fw-bold">Select Invoice:</label>
+                        <select id="receivable_id" name="receivable_id" class="form-select" required>
+                            <option value="">-- Select an unpaid invoice --</option>
+                            {% for receivable in open_receivables %}
+                            <option value="{{ receivable.id }}" data-amount="{{ receivable.amount }}">
+                                #{{ receivable.invoice_number }} - {{ receivable.customer_name }} - ${{ "%.2f"|format(receivable.amount) }} (Due: {{ receivable.due_date }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="payment_date" class="form-label">Payment Date:</label>
+                                <input type="date" id="payment_date" name="payment_date" class="form-control date-input" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="payment_account_id" class="form-label">Deposit Account:</label>
+                                <select id="payment_account_id" name="payment_account_id" class="form-select" required>
+                                    <option value="">-- Select deposit account --</option>
+                                    {% for account in accounts %}
+                                    <option value="{{ account[0] }}">{{ account[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" class="form-control currency-input" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="payment_method" class="form-label">Payment Method:</label>
+                                <select id="payment_method" name="payment_method" class="form-select" required>
+                                    <option value="cash">Cash</option>
+                                    <option value="check">Check</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reference" class="form-label">Reference/Check Number:</label>
+                        <input type="text" id="reference" name="reference" class="form-control" placeholder="Optional: Enter check number, transaction ID, etc.">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes:</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Optional: Enter any notes about this payment"></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('receivables') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-hand-holding-usd me-1"></i> Record Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-fill amount when receivable is selected
+    document.getElementById('receivable_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.amount) {
+            document.getElementById('amount').value = selectedOption.dataset.amount;
+        } else {
+            document.getElementById('amount').value = '';
+        }
+    });
+    
+    // Set default date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const formattedDate = today.toISOString().substr(0, 10);
+        document.getElementById('payment_date').value = formattedDate;
+    });
+</script>
+{% endblock %}

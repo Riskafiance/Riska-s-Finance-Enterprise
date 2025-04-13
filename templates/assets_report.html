@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assets Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        .report-section { margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .summary-card {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .summary-value {
+            font-weight: bold;
+        }
+        .gain { color: green; }
+        .loss { color: red; }
+        .print-btn { 
+            padding: 8px 15px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-bottom: 20px;
+        }
+        /* Added home button style */
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Added home button -->
+    <a href="/home" class="home-btn">Home</a>
+
+    <h2>Assets Report</h2>
+    <button class="print-btn" onclick="window.print()">Print Report</button>
+    
+    <div class="report-section">
+        <h3>Assets Summary</h3>
+        <div class="summary-card">
+            <div class="summary-item">
+                <span>Total Assets:</span>
+                <span class="summary-value">{{ summary.total_assets }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Value:</span>
+                <span class="summary-value">${{ "%.2f"|format(summary.total_value or 0) }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Sales:</span>
+                <span class="summary-value">${{ "%.2f"|format(summary.total_sales or 0) }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Net Gain/Loss:</span>
+                <span class="summary-value {% if (summary.net_gain_loss or 0) >= 0 %}gain{% else %}loss{% endif %}">
+                    ${{ "%.2f"|format(summary.net_gain_loss or 0) }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="report-section">
+        <h3>Recent Asset Sales</h3>
+        {% if recent_sales %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset Name</th>
+                        <th>Purchase Price</th>
+                        <th>Sale Price</th>
+                        <th>Gain/Loss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>{{ sale.name }}</td>
+                        <td>${{ "%.2f"|format(sale.purchase_price) }}</td>
+                        <td>${{ "%.2f"|format(sale.sale_price) }}</td>
+                        <td class="{% if sale.gain_loss >= 0 %}gain{% else %}loss{% endif %}">
+                            ${{ "%.2f"|format(sale.gain_loss) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No recent asset sales.</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 30px; font-size: 12px; color: #666;">
+        Report generated on {{ now.strftime('%Y-%m-%d %H:%M:%S') }}
+    </div>
+</body>
+</html>

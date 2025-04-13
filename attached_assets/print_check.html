@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Check #{{ check_number }}</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            width: 7.5in;
+            height: 3.5in;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .check-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .payee-line {
+            margin-bottom: 40px;
+        }
+        .amount-line {
+            margin-bottom: 40px;
+        }
+        .check-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .bank-info {
+            text-align: right;
+        }
+        @page {
+            size: auto;
+            margin: 0mm;
+        }
+    </style>
+</head>
+<body onload="window.print();">
+    <div class="check-header">
+        <div>{{ date }}</div>
+        <div>Check #{{ check_number }}</div>
+    </div>
+    
+    <div class="payee-line">
+        Pay to the order of: <span style="border-bottom: 1px solid black; min-width: 300px; display: inline-block;">{{ payee }}</span>
+    </div>
+    
+    <div class="amount-line">
+        ${{ "%.2f"|format(amount) }}
+    </div>
+    
+    <div class="check-footer">
+        <div>{{ memo }}</div>
+        <div class="bank-info">
+            <div style="font-weight: bold;">{{ account_name }}</div>
+            <div>Your Bank Address</div>
+            <div>City, State ZIP</div>
+        </div>
+    </div>
+</body>
+</html>

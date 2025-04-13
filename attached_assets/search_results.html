@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Riska's Finance</title>
+    <style>
+        /* Copy all your CSS styles from home.html here */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-results {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        /* Add other styles from your home.html as needed */
+    </style>
+</head>
+<div style="text-align: left; padding: 20px;">
+        <a href="{{ url_for('home') }}">Home</a>
+<body>
+    <!-- Header matching your main layout -->
+    <div class="header">
+        <h1>Riska's Finance</h1>
+        <div class="search-bar">
+            <form action="{{ url_for('search') }}" method="GET">
+                <input type="text" name="q" placeholder="Search..." value="{{ search_term }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="search-results">
+        <h1>Search Results for "{{ search_term }}"</h1>
+        
+        {% if results %}
+            {% for result in results %}
+            <div class="result-item">
+                {% if result.type == 'account' %}
+                    <h3>Account: {{ result.name }}</h3>
+                    <a href="{{ url_for('account_details', account_id=result.id) }}">View Account</a>
+                
+                {% elif result.type == 'transaction' %}
+                    <h3>Transaction: {{ result.description }}</h3>
+                    <p>Account: {{ result.account }} | Date: {{ result.date }}</p>
+                    <a href="{{ url_for('account_details', account_id=result.id) }}">View Transaction</a>
+                
+                {% elif result.type == 'inventory' %}
+                    <h3>Inventory Item: {{ result.name }}</h3>
+                    <a href="{{ url_for('inventory') }}">View Inventory</a>
+                
+                {% elif result.type == 'asset' %}
+                    <h3>Asset: {{ result.name }}</h3>
+                    <a href="{{ url_for('assets') }}">View Assets</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <h3>No results found for "{{ search_term }}"</h3>
+                <p>Try searching for accounts, transactions, inventory items, or assets</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

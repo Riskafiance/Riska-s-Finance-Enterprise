@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Account</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #808080; /* Medium grey */
+            padding-top: 20px;
+        }
+        form {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .accounting-code-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .accounting-code-container input {
+            width: 18%; /* Small width for each input */
+            margin-right: 4%; /* Space between inputs */
+        }
+        .accounting-code-container input:last-child {
+            margin-right: 0; /* No margin for the last input */
+        }
+        button {
+            background-color: #808080; /* Medium grey */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #666666; /* Darker grey for hover */
+        }
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+        a {
+            color: #808080; /* Medium grey */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        a:hover {
+            color: #666666; /* Darker grey for hover */
+            background-color: #e0f7fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create New Account</h1>
+    <form method="POST">
+        <label for="name">Account Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="accounting_codes">Accounting Codes:</label>
+        <div class="accounting-code-container">
+            <input type="text" id="code1" name="accounting_codes[]" maxlength="5" required>
+            <input type="text" id="code2" name="accounting_codes[]" maxlength="5" required>
+            <input type="text" id="code3" name="accounting_codes[]" maxlength="5" required>
+            <input type="text" id="code4" name="accounting_codes[]" maxlength="5" required>
+            <input type="text" id="code5" name="accounting_codes[]" maxlength="5" required>
+        </div><br><br> <!-- 5 smaller fields for Accounting Codes -->
+        
+        <label for="category">Account Category:</label>
+        <select id="category" name="category" required>
+            <option value="personal">Personal</option>
+            <option value="business">Business</option>
+            <option value="investment">Investment</option>
+            <option value="savings">Savings</option>
+            <option value="expense">Expense</option>
+        </select><br><br>
+
+        <button type="submit">Create</button>
+    </form>
+    <div class="actions">
+        <a href="{{ url_for('index') }}">Back to Accounts</a>
+    </div>
+</body>
+</html>

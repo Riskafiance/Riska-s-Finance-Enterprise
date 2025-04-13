@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+
+{% block title %}Write Check{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="mb-0">Write a Check</h1>
+    </div>
+    <div class="card-body">
+        <form id="check-form">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="check_number" class="form-label">Check Number:</label>
+                        <input type="number" class="form-control" id="check_number" name="check_number" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date:</label>
+                        <input type="date" class="form-control" id="date" name="date" required value="{{ today }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="payee" class="form-label">Payee (Pay to the Order of):</label>
+                        <input type="text" class="form-control" id="payee" name="payee" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="amount" name="amount" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="account_id" class="form-label">Account:</label>
+                        <select class="form-select" id="account_id" name="account_id" required>
+                            <option value="">Select Account</option>
+                            {% for account in accounts %}
+                            <option value="{{ account.id }}">{{ account.name }} - Balance: ${{ "%.2f"|format(account.balance) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <input type="text" class="form-control" id="description" name="description">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="memo" class="form-label">Memo (appears on check):</label>
+                        <input type="text" class="form-control" id="memo" name="memo">
+                    </div>
+                    
+                    <div class="mb-3" id="balance-display">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-1"></i> 
+                            Select an account to see available balance.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Check Preview -->
+            <div id="check-preview" class="mt-4 mb-4 p-4 border rounded" style="display: none; font-family: 'Courier New', monospace;">
+                <h3 class="mb-3">Check Preview</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Riska's Finance Logo" height="50" class="mb-2">
+                        <div>Riska's Finance</div>
+                        <div>123 Business Ave.</div>
+                        <div>Finance City, FC 12345</div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="fs-5" id="preview-date">{{ today }}</div>
+                        <div class="fs-5">Check #<span id="preview-check-number"></span></div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="mb-2"><strong>Pay to the order of:</strong></div>
+                        <div id="preview-payee" class="border-bottom p-2 fs-5"></div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-8">
+                                <div id="preview-amount-words" class="border-bottom p-2"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div id="preview-amount" class="border border-dark p-2 text-end fs-5">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div><strong>Memo:</strong> <span id="preview-memo"></span></div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="border-bottom p-4 mb-2">
+                            <div class="text-center">Authorized Signature</div>
+                        </div>
+                        <div id="preview-account"></div>
+                    </div>
+                </div>
+            </div>
+                
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('checks') }}" class="btn btn-secondary me-2">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+                <button type="button" class="btn btn-info me-2" onclick="toggleCheckPreview()">
+                    <i class="fas fa-eye me-1"></i> <span id="preview-button-text">Preview Check</span>
+                </button>
+                <button type="button" class="btn btn-primary me-2" onclick="showSuccessMessage()">
+                    <i class="fas fa-save me-1"></i> Write Check
+                </button>
+                <button type="button" class="btn btn-success" onclick="printCheckPreview()">
+                    <i class="fas fa-print me-1"></i> Print Check
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Function to convert number to words for check amount
+    function numberToWords(num) {
+        const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+                    'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+                    'seventeen', 'eighteen', 'nineteen'];
+        const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        const scales = ['', 'thousand', 'million', 'billion', 'trillion'];
+        
+        if (num === 0) return 'zero dollars';
+        
+        // Split dollars and cents
+        const parts = num.toFixed(2).split('.');
+        const dollars = parseInt(parts[0]);
+        const cents = parseInt(parts[1]);
+        
+        // Function to convert a group of 3 digits
+        function convertGroup(n) {
+            let result = '';
+            
+            // Handle hundreds
+            if (n >= 100) {
+                result += ones[Math.floor(n / 100)] + ' hundred ';
+                n %= 100;
+            }
+            
+            // Handle tens and ones
+            if (n >= 20) {
+                result += tens[Math.floor(n / 10)] + ' ';
+                n %= 10;
+                if (n > 0) {
+                    result += ones[n] + ' ';
+                }
+            } else if (n > 0) {
+                result += ones[n] + ' ';
+            }
+            
+            return result;
+        }
+        
+        // Process dollars part
+        let result = '';
+        let groupCount = 0;
+        
+        while (dollars > 0) {
+            const n = dollars % 1000;
+            if (n !== 0) {
+                const groupText = convertGroup(n);
+                result = groupText + scales[groupCount] + ' ' + result;
+            }
+            
+            dollars = Math.floor(dollars / 1000);
+            groupCount++;
+        }
+        
+        result = result.trim() + ' dollars';
+        
+        // Add cents
+        if (cents > 0) {
+            result += ' and ' + convertGroup(cents).trim() + 'cents';
+        }
+        
+        return result.charAt(0).toUpperCase() + result.slice(1);
+    }
+    
+    // Toggle check preview visibility
+    function toggleCheckPreview() {
+        const previewElement = document.getElementById('check-preview');
+        const buttonText = document.getElementById('preview-button-text');
+        
+        if (previewElement.style.display === 'none') {
+            updateCheckPreview();
+            previewElement.style.display = 'block';
+            buttonText.textContent = 'Hide Preview';
+        } else {
+            previewElement.style.display = 'none';
+            buttonText.textContent = 'Preview Check';
+        }
+    }
+    
+    // Update check preview with current form values
+    function updateCheckPreview() {
+        const payee = document.getElementById('payee').value || 'Payee Name';
+        const amount = parseFloat(document.getElementById('amount').value) || 0;
+        const date = document.getElementById('date').value;
+        const checkNumber = document.getElementById('check_number').value || '00000';
+        const memo = document.getElementById('memo').value || '';
+        
+        // Get account name if selected
+        const accountSelect = document.getElementById('account_id');
+        let accountName = '';
+        if (accountSelect.selectedIndex > 0) {
+            const optionText = accountSelect.options[accountSelect.selectedIndex].text;
+            accountName = optionText.split(' - ')[0];
+        }
+        
+        // Update preview elements
+        document.getElementById('preview-payee').textContent = payee;
+        document.getElementById('preview-amount').textContent = '$' + amount.toFixed(2);
+        document.getElementById('preview-amount-words').textContent = numberToWords(amount);
+        document.getElementById('preview-date').textContent = date;
+        document.getElementById('preview-check-number').textContent = checkNumber;
+        document.getElementById('preview-memo').textContent = memo;
+        document.getElementById('preview-account').textContent = accountName;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set today's date as default
+        const today = new Date().toISOString().substr(0, 10);
+        document.getElementById('date').value = today;
+        
+        // Get account balance when account is selected
+        const accountSelect = document.getElementById('account_id');
+        const balanceDisplay = document.getElementById('balance-display');
+        
+        accountSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (selectedOption.value) {
+                // Extract balance from option text
+                const optionText = selectedOption.text;
+                const balance = parseFloat(optionText.match(/Balance: \$([\d\.]+)/)[1]);
+                
+                let alertClass = 'alert-success';
+                let icon = 'fa-check-circle';
+                let message = `Available balance: <strong>$${balance.toFixed(2)}</strong>`;
+                
+                // Check if balance is low
+                if (balance < 100) {
+                    alertClass = 'alert-warning';
+                    icon = 'fa-exclamation-triangle';
+                    message += ' <span class="text-danger">(Low Balance)</span>';
+                }
+                
+                balanceDisplay.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        <i class="fas ${icon} me-1"></i> ${message}
+                    </div>
+                `;
+                
+                // Update preview if visible
+                if (document.getElementById('check-preview').style.display !== 'none') {
+                    updateCheckPreview();
+                }
+            } else {
+                balanceDisplay.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        Select an account to see available balance.
+                    </div>
+                `;
+            }
+        });
+        
+        // Validate check amount against balance
+        const form = document.querySelector('form');
+        const amountInput = document.getElementById('amount');
+        
+        form.addEventListener('submit', function(event) {
+            const selectedOption = accountSelect.options[accountSelect.selectedIndex];
+            
+            if (selectedOption.value) {
+                const optionText = selectedOption.text;
+                const balance = parseFloat(optionText.match(/Balance: \$([\d\.]+)/)[1]);
+                const amount = parseFloat(amountInput.value);
+                
+                if (amount > balance) {
+                    event.preventDefault();
+                    alert('Amount exceeds account balance. Please enter a smaller amount or select a different account.');
+                }
+            }
+        });
+        
+        // Add input listeners to update preview in real-time
+        const previewFields = ['payee', 'amount', 'date', 'check_number', 'memo', 'account_id'];
+        previewFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.addEventListener('input', function() {
+                    if (document.getElementById('check-preview').style.display !== 'none') {
+                        updateCheckPreview();
+                    }
+                });
+            }
+        });
+    });
+    
+    // Function to show success message
+    function showSuccessMessage() {
+        // First, validate the form
+        if (!validateForm()) {
+            return;
+        }
+        
+        // Ask user if they want to save this check to the database
+        if (confirm('Would you like to save this check to the database? This will update account balances.')) {
+            saveCheckToDatabase();
+        } else {
+            displayTemporaryCheckPreview();
+        }
+    }
+    
+    // Validate all form fields
+    function validateForm() {
+        const payee = document.getElementById('payee').value;
+        const amount = document.getElementById('amount').value;
+        const accountSelect = document.getElementById('account_id');
+        const checkNumber = document.getElementById('check_number').value;
+        const date = document.getElementById('date').value;
+        
+        if (!checkNumber) {
+            alert('Please enter a check number');
+            return false;
+        }
+        
+        if (!payee) {
+            alert('Please enter a payee name');
+            return false;
+        }
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount');
+            return false;
+        }
+        
+        if (!accountSelect.value) {
+            alert('Please select an account');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Save the check to the database via AJAX
+    function saveCheckToDatabase() {
+        // Show loading spinner
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'save-loading';
+        loadingDiv.className = 'alert alert-info';
+        loadingDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div>Saving check to database, please wait...</div>
+            </div>
+        `;
+        
+        const form = document.getElementById('check-form');
+        form.parentNode.insertBefore(loadingDiv, form.nextSibling);
+        
+        // Get form data
+        const formData = new FormData();
+        formData.append('check_number', document.getElementById('check_number').value);
+        formData.append('date', document.getElementById('date').value);
+        formData.append('payee', document.getElementById('payee').value);
+        formData.append('amount', document.getElementById('amount').value);
+        formData.append('account_id', document.getElementById('account_id').value);
+        formData.append('description', document.getElementById('description').value || '');
+        formData.append('memo', document.getElementById('memo').value || '');
+        
+        // Send AJAX request
+        fetch('{{ url_for('save_check') }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove loading indicator
+            document.getElementById('save-loading').remove();
+            
+            if (data.success) {
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success';
+                successDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <div>${data.message}</div>
+                    </div>
+                `;
+                form.parentNode.insertBefore(successDiv, form.nextSibling);
+                
+                // Create persistent check record card
+                const checkTable = document.createElement('div');
+                checkTable.innerHTML = `
+                    <div class="card mt-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">Check Successfully Saved</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Check #:</strong> ${document.getElementById('check_number').value}</p>
+                                    <p><strong>Date:</strong> ${document.getElementById('date').value}</p>
+                                    <p><strong>Payee:</strong> ${document.getElementById('payee').value}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Amount:</strong> $${parseFloat(document.getElementById('amount').value).toFixed(2)}</p>
+                                    <p><strong>Account:</strong> ${document.getElementById('account_id').options[document.getElementById('account_id').selectedIndex].text.split(' - ')[0]}</p>
+                                    <p><strong>Memo:</strong> ${document.getElementById('memo').value || ''}</p>
+                                </div>
+                            </div>
+                            <div class="alert alert-success mt-3">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Check has been saved to the database and the account balance has been updated.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Insert before check preview
+                const checkPreview = document.getElementById('check-preview');
+                checkPreview.parentNode.insertBefore(checkTable, checkPreview);
+                
+                // Hide form
+                document.getElementById('check-form').style.display = 'none';
+                
+                // Show success buttons
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'd-grid gap-2 d-md-flex justify-content-md-end mt-3';
+                buttonsDiv.innerHTML = `
+                    <button type="button" class="btn btn-success me-2" onclick="printCheckPreview()">
+                        <i class="fas fa-print me-1"></i> Print Check
+                    </button>
+                    <a href="{{ url_for('checks') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-1"></i> Return to Checks
+                    </a>
+                `;
+                
+                checkTable.appendChild(buttonsDiv);
+                
+                // Scroll to check table
+                checkTable.scrollIntoView({ behavior: 'smooth' });
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = '{{ url_for('checks') }}';
+                }, 3000);
+            } else {
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>Error: ${data.message}</div>
+                    </div>
+                `;
+                form.parentNode.insertBefore(errorDiv, form.nextSibling);
+            }
+        })
+        .catch(error => {
+            // Remove loading indicator
+            document.getElementById('save-loading').remove();
+            
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <div>An error occurred: ${error.message}</div>
+                </div>
+            `;
+            form.parentNode.insertBefore(errorDiv, form.nextSibling);
+        });
+    }
+    
+    // Display temporary check preview (when not saving to database)
+    function displayTemporaryCheckPreview() {
+        const checkNumber = document.getElementById('check_number').value;
+        const date = document.getElementById('date').value;
+        const payee = document.getElementById('payee').value;
+        const amount = document.getElementById('amount').value;
+        const accountSelect = document.getElementById('account_id');
+        const memo = document.getElementById('memo').value || '';
+        
+        // Create temporary element in page to simulate saving to database
+        const checkTable = document.createElement('div');
+        checkTable.innerHTML = `
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Check Preview</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Check #:</strong> ${checkNumber}</p>
+                            <p><strong>Date:</strong> ${date}</p>
+                            <p><strong>Payee:</strong> ${payee}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Amount:</strong> $${parseFloat(amount).toFixed(2)}</p>
+                            <p><strong>Account:</strong> ${accountSelect.options[accountSelect.selectedIndex].text.split(' - ')[0]}</p>
+                            <p><strong>Memo:</strong> ${memo}</p>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This check is only being previewed. It has not been saved to the database.
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert before check preview
+        const checkPreview = document.getElementById('check-preview');
+        checkPreview.parentNode.insertBefore(checkTable, checkPreview);
+        
+        // Show action buttons
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'd-grid gap-2 d-md-flex justify-content-md-end mt-3';
+        buttonsDiv.innerHTML = `
+            <button type="button" class="btn btn-success me-2" onclick="saveCheckToDatabase()">
+                <i class="fas fa-save me-1"></i> Save to Database
+            </button>
+            <button type="button" class="btn btn-info me-2" onclick="printCheckPreview()">
+                <i class="fas fa-print me-1"></i> Print Check
+            </button>
+            <a href="{{ url_for('checks') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Cancel
+            </a>
+        `;
+        
+        checkTable.appendChild(buttonsDiv);
+        
+        // Scroll to check preview
+        checkTable.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Function to print check preview
+    function printCheckPreview() {
+        // Make sure preview is visible
+        if (document.getElementById('check-preview').style.display === 'none') {
+            toggleCheckPreview();
+        }
+        
+        // Update preview with latest values
+        updateCheckPreview();
+        
+        // Print the check preview
+        window.print();
+    }
+</script>
+{% endblock %}

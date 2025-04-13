@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riska's Finance</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            padding-top: 40px;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Glassmorphism Table */
+        table {
+            width: 90%;
+            margin: 40px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(221, 221, 221, 0.3);
+        }
+
+        th {
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(248, 248, 248, 0.6);
+        }
+
+        tr:hover {
+            background-color: rgba(224, 247, 250, 0.8);
+            transform: scale(1.02);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Fancy Buttons */
+        button {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Glassmorphism Links */
+        a {
+            color: #808080;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(248, 248, 248, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: #666666;
+            background: rgba(224, 247, 250, 0.8);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Actions Section */
+        .actions {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .actions a {
+            margin: 0 10px;
+        }
+
+        /* Glassmorphism Report Section */
+        .report-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        .report-section h2 {
+            color: #4a4a4a;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-section select, .report-section input {
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            font-size: 14px;
+            margin: 10px;
+            width: 220px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .report-section select[multiple] {
+            height: 120px;
+        }
+
+        .report-section button {
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .report-section button:hover {
+            background: linear-gradient(135deg, #666666, #4a4a4a);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+        footer p {
+            margin: 5px 0;
+            color: #4a4a4a;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #4a4a4a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            color: #666666;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Background Particles */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('Particles.js loaded!');
+        });
+    </script>
+</head>
+<body>
+    <!-- Particles.js Container -->
+    <div id="particles-js"></div>
+
+    <h1>Riska's Finance</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Balance</th>
+            <th>Last Updated</th>
+            <th>Action</th>
+        </tr>
+        {% for account in accounts %}
+        <tr>
+            <td><a href="{{ url_for('account_details', account_id=account[0]) }}">{{ account[0] }}</a></td>
+            <td>{{ account[1] }}</td>
+            <td>${{ "%.2f"|format(account[2]) }}</td> <!-- Rounded to the nearest hundredth and formatted as currency -->
+            <td>{{ account[3] if account[3] else 'N/A' }}</td>
+            <td>
+                <form action="{{ url_for('delete_account', account_id=account[0]) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="actions">
+        <a href="{{ url_for('journal_entry') }}">Journal Entry</a> |
+        <a href="{{ url_for('create_account') }}">Create New Account</a> |
+        <a href="{{ url_for('add_transaction_page') }}">Add Transaction</a> |
+        <a href="{{ url_for('home') }}">Home</a> |
+	<a href="{{ url_for('upload_transactions') }}">Upload Excel</a> |
+	<a href="{{ url_for('checks') }}">Check</a> 
+    </div>
+    <div class="report-section">
+        <h2>Download Journal Entries Report</h2>
+        <form action="{{ url_for('download_journal_report') }}" method="GET">
+            <label for="account_id">Select Accounts:</label>
+            <select id="account_id" name="account_id" multiple required>
+                {% for account in accounts %}
+                <option value="{{ account[0] }}">{{ account[1] }}</option>
+                {% endfor %}
+            </select><br><br>
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date"><br><br>
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date"><br><br>
+            <button type="submit">Download Report</button>
+        </form>
+    </div>
+    <div class="report-section">
+        <h2>Download Profit & Loss Report (PDF)</h2>
+        <form action="{{ url_for('download_pnl_report') }}" method="GET">
+            <label for="pnl_account_id">Select Account:</label>
+            <select id="pnl_account_id" name="account_id" required>
+                {% for account in accounts %}
+                <option value="{{ account[0] }}">{{ account[1] }}</option>
+                {% endfor %}
+            </select><br><br>
+            <label for="pnl_start_date">Start Date:</label>
+            <input type="date" id="pnl_start_date" name="start_date"><br><br>
+            <label for="pnl_end_date">End Date:</label>
+            <input type="date" id="pnl_end_date" name="end_date"><br><br>
+            <button type="submit">Download P&L Report</button>
+        </form>
+    </div>
+    <div class="report-section">
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2025 Riska's Finance Enterprise. All rights reserved.
+    </div>
+</body>
+</html>
+</body>
+</html>

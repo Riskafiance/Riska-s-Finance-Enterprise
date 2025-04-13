@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Transactions</title>
+    <!-- Reuse your existing CSS -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #808080, #666666);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 25px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h2>Upload Transactions (Excel/CSV)</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="account_id">Select Account:</label>
+            <select id="account_id" name="account_id" required>
+                {% for account in accounts %}
+                <option value="{{ account[0] }}">{{ account[1] }}</option>
+                {% endfor %}
+            </select>
+            
+            <br><br>
+            
+            <label for="file">Choose file:</label>
+            <input type="file" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+            
+            <br><br>
+            
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+</body>
+</html>

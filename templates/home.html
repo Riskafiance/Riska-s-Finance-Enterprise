@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Logo -->
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Riska's Finance Logo" class="logo">
+
+    <!-- Welcome Message -->
+    <div class="welcome-message">
+        <h1>Welcome to Riska's Finance!</h1>
+        <p>Manage your accounts and transactions with ease.</p>
+    </div>
+
+    <!-- Business Feed -->
+    <div class="business-feed">
+        <h2>Business Feed</h2>
+        
+        <div class="feed-item">
+            <h3>Accounting done</h3>
+            <p>${{ "%.2f"|format(total_balance) }} in invoice payments and -${{ "%.2f"|format(total_balance * 0.8) }} in bill payments finalized</p>
+            <a href="{{ url_for('index') }}">View all matches</a>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards">
+        <div class="card">
+            <h3>Total Accounts</h3>
+            <p>{{ total_accounts }}</p>
+        </div>
+        <div class="card">
+            <h3>Total Transactions</h3>
+            <p>{{ total_transactions }}</p>
+        </div>
+        <div class="card">
+            <h3>Total Balance</h3>
+            <p>${{ "%.2f"|format(total_balance) }}</p>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-section">
+        <h2>Total Balance Over Time</h2>
+        <canvas id="balanceChart"></canvas>
+    </div>
+
+    <!-- Recent Transactions Section -->
+    <div class="recent-transactions">
+        <h2>Recent Transactions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Account</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="recent-transactions-body">
+                {% for transaction in recent_transactions %}
+                <tr>
+                    <td>{{ transaction[0] }}</td>
+                    <td>{{ transaction[1] }}</td>
+                    <td>{{ transaction[2] }}</td>
+                    <td>${{ "%.2f"|format(transaction[3]) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="quick-actions">
+        <a href="{{ url_for('journal_entry') }}" class="btn">Create Journal Entry</a>
+        <a href="{{ url_for('create_account') }}" class="btn">Add New Account</a>
+        <a href="{{ url_for('add_transaction') }}" class="btn">Add Transaction</a>
+        <a href="{{ url_for('upload_transactions_new') }}" class="btn">Import from Excel</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+        color: #333;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Logo Styles */
+    .logo {
+        display: block;
+        margin: 0 auto 20px auto;
+        max-width: 250px;
+        height: auto;
+    }
+
+    /* Welcome Message */
+    .welcome-message {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-top: 0;
+    }
+
+    .welcome-message h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .welcome-message p {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    /* Business Feed Styles */
+    .business-feed {
+        margin-top: 30px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .business-feed h2 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .feed-item {
+        background: rgba(248, 248, 248, 0.8);
+        border-left: 4px solid #666666;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .feed-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .feed-item h3 {
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+    }
+
+    .feed-item p {
+        margin: 0 0 10px 0;
+        color: #666;
+    }
+
+    .feed-item a {
+        color: #4a6fa5;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Cards */
+    .cards {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        flex: 1 1 calc(33.333% - 40px);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+    }
+
+    .card p {
+        color: #666;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    /* Chart Section */
+    .chart-section {
+        margin-top: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .chart-section h2 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-section canvas {
+        width: 100% !important;
+        height: 300px !important;
+    }
+
+    /* Recent Transactions Section */
+    .recent-transactions {
+        margin-top: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .recent-transactions h2 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .recent-transactions table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .recent-transactions th, .recent-transactions td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(221, 221, 221, 0.3);
+    }
+
+    .recent-transactions th {
+        background: linear-gradient(135deg, #808080, #666666);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .recent-transactions tr:nth-child(even) {
+        background-color: rgba(248, 248, 248, 0.6);
+    }
+
+    .recent-transactions tr:hover {
+        background-color: rgba(224, 247, 250, 0.8);
+        transform: scale(1.02);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    /* Quick Actions Section */
+    .quick-actions {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .quick-actions a {
+        margin: 0 10px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #808080, #666666);
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .quick-actions a:hover {
+        background: linear-gradient(135deg, #666666, #4a4a4a);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load chart data
+        loadChartData();
+        
+        // Load real-time recent transactions
+        loadRecentTransactions();
+        
+        // Set up auto-refresh for transactions (every 30 seconds)
+        setInterval(loadRecentTransactions, 30000);
+    });
+    
+    function loadRecentTransactions() {
+        fetch('/api/recent_transactions?limit=10')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.transactions.length > 0) {
+                    const tbody = document.getElementById('recent-transactions-body');
+                    // Clear existing transactions
+                    tbody.innerHTML = '';
+                    
+                    // Add new transactions
+                    data.transactions.forEach(transaction => {
+                        const row = document.createElement('tr');
+                        
+                        // Format date
+                        const date = new Date(transaction.date);
+                        const formattedDate = date.toLocaleDateString ? 
+                            date.toLocaleDateString() : transaction.date;
+                        
+                        // Calculate amount (debit - credit)
+                        let amount = 0;
+                        if (transaction.debit > 0) {
+                            amount = transaction.debit;
+                        } else if (transaction.credit > 0) {
+                            amount = -transaction.credit;
+                        }
+                        
+                        const amountClass = amount >= 0 ? '' : 'text-danger';
+                        
+                        row.innerHTML = `
+                            <td>${formattedDate}</td>
+                            <td>${transaction.account}</td>
+                            <td>${transaction.description}</td>
+                            <td class="${amountClass}">$${Math.abs(amount).toFixed(2)}</td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching recent transactions:', error);
+            });
+    }
+    
+    function loadChartData() {
+        // Fetch real balance history data from the backend
+        fetch('/api/balance_history')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Create chart with real data from the backend
+                const balanceData = {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Total Balance',
+                            data: data.balances,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                            type: 'line',
+                            yAxisID: 'y',
+                            order: 1
+                        },
+                        {
+                            label: 'Income',
+                            data: data.income,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            type: 'bar',
+                            yAxisID: 'y1',
+                            order: 2
+                        },
+                        {
+                            label: 'Expenses',
+                            data: data.expenses,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            type: 'bar',
+                            yAxisID: 'y1',
+                            order: 3
+                        }
+                    ]
+                };
+
+                // Chart configuration
+                const config = {
+                    type: 'line',
+                    data: balanceData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Disable aspect ratio to allow custom sizing
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Financial Overview Over Time'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += new Intl.NumberFormat('en-US', { 
+                                            style: 'currency', 
+                                            currency: 'USD' 
+                                        }).format(context.parsed.y);
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Balance ($)'
+                                },
+                                ticks: {
+                                    // Format y-axis as currency
+                                    callback: function(value, index, values) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: true
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Income/Expenses ($)'
+                                },
+                                ticks: {
+                                    // Format y-axis as currency
+                                    callback: function(value, index, values) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // Render the chart
+                const balanceChart = new Chart(
+                    document.getElementById('balanceChart'),
+                    config
+                );
+            })
+            .catch(error => {
+                console.error('Error loading balance history data:', error);
+                
+                // Fallback to empty chart on error
+                const emptyConfig = {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Financial Data',
+                            data: [],
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Financial Overview (Error loading data)'
+                            }
+                        }
+                    }
+                };
+                
+                new Chart(document.getElementById('balanceChart'), emptyConfig);
+            });
+    }
+</script>
+{% endblock %}
